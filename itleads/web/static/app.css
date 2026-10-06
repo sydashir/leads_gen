@@ -391,3 +391,7 @@ dialog.preview::backdrop{background:rgba(0,0,0,.74);backdrop-filter:blur(3px)}
   .top .logo-tag{display:none}
   .actions .btn,.actions summary{padding-inline:8px;gap:6px;white-space:nowrap}
 }
+.run-top strong,.run-top span,.msg,.notice>span,.errbox,#s-next{overflow-wrap:anywhere;min-width:0}
+@media (forced-colors:active){
+  .menu summary.btn{color:ButtonText;border-color:ButtonText}
+}

@@ -154,10 +154,11 @@ class LandingCssFixes(unittest.TestCase):
         """At 1365 px the headline (4.9vw, 66.9 px) no longer fitted its 715 px column by about 1 px and jumped from two
         lines to three. A 1 px sweep of 981-1920 with this cap shows two lines at every width (fits up to 66.8 px)."""
         size = declarations(self.rules, ".hero h1").get("font-size", "")
-        m = re.fullmatch(r"clamp\((\d+)px,([\d.]+)vw,(\d+)px\)", size)
+        m = re.fullmatch(r"clamp\(([\d.]+)rem,([\d.]+)vw,([\d.]+)rem\)", size)     # rem: it follows the browser text size (1rem = 15px)
         self.assertTrue(m, size)
-        self.assertLessEqual(int(m.group(3)), 66)
-        self.assertGreaterEqual(int(m.group(3)), 56)                              # still a big headline
+        top = float(m.group(3)) * 15
+        self.assertLessEqual(top, 66.01)
+        self.assertGreaterEqual(top, 56)                                           # still a big headline
         # the column it must fit: 1320 wrap, 32 px side padding, 64 px gap, 1.2fr of 2fr
         column = (1320 - 64 - 64) * 1.2 / 2
         self.assertAlmostEqual(column, 715.2, places=1)
