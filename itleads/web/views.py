@@ -17,6 +17,7 @@ bp = Blueprint("views", __name__)
 
 SCRIPT_URL = re.compile(r"^https://script\.google\.com/(a/macros/[^/]+/)?macros/s/[A-Za-z0-9_\-]+/exec$")
 SHEET_ID = re.compile(r"^[A-Za-z0-9_\-]{6,120}$")
+SHEET_URL = re.compile(r"^https://docs\.google\.com/spreadsheets/d/[A-Za-z0-9_\-]{6,120}/edit$")
 SOURCE_LABELS = {"tx": "Texas", "ct": "Connecticut", "seattle": "Seattle", "sf": "San Francisco", "la": "Los Angeles"}
 STATUS_LABELS = {"ok": "Done", "partial": "Partly done", "failed": "Failed", "offline": "No internet"}
 TRIGGER_LABELS = {"schedule": "Daily schedule", "manual": "Started by hand", "connect": "After connecting Google"}
@@ -59,7 +60,11 @@ def google_info(cfg: dict) -> dict:
     sid = str(cfg.get("sheet_id") or "")
     connected = bool(cfg.get("apps_script_url")) and bool(SHEET_ID.match(sid))
     base = f"https://docs.google.com/spreadsheets/d/{sid}"
-    return {"connected": connected, "linked": bool(cfg.get("share_link", True)),
+    open_url = base + "/edit" if connected else ""
+    if not open_url and config.read_only():                 # a published copy holds no Google settings: the address is handed in
+        given = os.environ.get("ITLEADS_SHEET_URL", "")
+        open_url = given if SHEET_URL.match(given) else ""
+    return {"connected": connected, "linked": bool(cfg.get("share_link", True)), "open_url": open_url,
             "sheet_url": base + "/edit" if connected else "", "embed_url": base + "/htmlview" if connected else ""}
 
 

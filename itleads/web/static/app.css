@@ -295,6 +295,7 @@ dialog.preview::backdrop{background:rgba(0,0,0,.74);backdrop-filter:blur(3px)}
   .actions>*{min-width:0}
   .actions .btn,.actions .menu{width:100%}
   .actions .btn,.actions summary{padding-inline:12px}
+  #open-sheet{grid-column:1/-1}
   .actions .btn.primary{grid-column:1/-1;order:-1;min-height:48px}
   .menu .pop{left:auto;right:0}
   .tile{padding:18px 18px}

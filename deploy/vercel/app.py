@@ -26,6 +26,8 @@ try:
     info = json.loads((snapshot / "info.json").read_text(encoding="utf-8"))
     os.environ.setdefault("ITLEADS_SNAPSHOT_AT", info["taken_label"])
     os.environ.setdefault("ITLEADS_SNAPSHOT_DATE", info["taken_date"])
+    if info.get("sheet_url"):
+        os.environ.setdefault("ITLEADS_SHEET_URL", info["sheet_url"])
 except (OSError, KeyError, ValueError):
     pass
 

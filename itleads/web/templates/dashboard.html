@@ -3,7 +3,7 @@
 {% block main %}
 {% if read_only %}
 <div class="notice">
-  <span>This is a read-only copy{% if snapshot_at %}: the list as it was on {{ snapshot_at }}{% endif %}. It cannot run or refresh itself. The preview and the downloads work.</span>
+  <span>This is a read-only copy{% if snapshot_at %}: the list as it was on {{ snapshot_at }}{% endif %}. It cannot search or refresh itself, so Run now is switched off.{% if google.open_url %} The Google Sheet is updated after every run.{% endif %} The preview and the downloads work.</span>
 </div>
 {% elif not google.connected %}
 <div class="notice warn">
@@ -19,6 +19,11 @@
     <p class="sub" id="sub">{% if read_only %}{% if updated %}Updated {{ updated }}{% else %}Read-only copy{% endif %}{% elif running %}Running now{% else %}{% if updated %}Updated {{ updated }} &middot; {% endif %}{% if problem %}{{ problem }} &middot; {% endif %}Next run {{ next_run }}{% endif %}</p>
   </div>
   <div class="actions">
+    {% if google.open_url %}
+    <a class="btn{% if read_only %} primary{% endif %}" id="open-sheet" href="{{ google.open_url }}" target="_blank" rel="noopener noreferrer">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9.5 2.5h4v4M13.5 2.5l-6 6M12 9.5v3a1 1 0 0 1-1 1H3.5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3"/></svg>
+      Open Google Sheet<span class="sr"> (opens in a new tab)</span></a>
+    {% endif %}
     <button class="btn" id="open-preview" type="button">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M1.5 8s2.3-4.5 6.5-4.5S14.5 8 14.5 8 12.2 12.5 8 12.5 1.5 8 1.5 8z"/><circle cx="8" cy="8" r="2"/></svg>
       Preview sheet</button>
@@ -31,7 +36,7 @@
         <a href="{{ url_for('views.download', fmt='csv') }}">CSV<small>plain text, opens anywhere</small></a>
       </div>
     </details>
-    <button class="btn primary" id="run" type="button" aria-disabled="false"{% if read_only %} disabled title="Runs are not available in this read-only copy"{% endif %}>
+    <button class="btn primary" id="run" type="button" aria-disabled="false"{% if read_only %} hidden{% endif %}>
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4.5 3.2v9.6L12.5 8z"/></svg>
       <span>Run now</span></button>
   </div>

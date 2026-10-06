@@ -118,7 +118,21 @@ def make_snapshot(src_db: Path, dst_db: Path) -> dict:
     return {"listed": listed, "total": total, "reduced": len(others)}
 
 
-def build(out: Path, repo: Path = REPO, source_db: Path | None = None, now: datetime | None = None) -> dict:
+SHEET_ID = re.compile(r"^[A-Za-z0-9_\-]{6,120}$")
+
+
+def sheet_url(config_json: Path) -> str:
+    """The address of the Google Sheet (not a secret: opening it still needs the owner or a share). '' when none is connected."""
+    try:
+        c = json.loads(Path(config_json).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return ""
+    sid = str(c.get("sheet_id") or "")
+    return f"https://docs.google.com/spreadsheets/d/{sid}/edit" if c.get("apps_script_url") and SHEET_ID.match(sid) else ""
+
+
+def build(out: Path, repo: Path = REPO, source_db: Path | None = None, now: datetime | None = None,
+          config_json: Path | None = None) -> dict:
     out = Path(out).resolve()
     if out == repo or out in repo.parents or repo / "itleads" in (out, *out.parents):
         raise BundleError(f"refusing to build into {out}")
@@ -143,7 +157,8 @@ def build(out: Path, repo: Path = REPO, source_db: Path | None = None, now: date
     stats = make_snapshot(db, out / "snapshot" / "leads.db")
     now = now or datetime.now()
     info = {"taken": now.isoformat(timespec="seconds"), "taken_date": now.date().isoformat(),
-            "taken_label": f"{now.day} {now:%b %Y}, {now:%H:%M} {time.strftime('%Z') or ''}".strip(), **stats}
+            "taken_label": f"{now.day} {now:%b %Y}, {now:%H:%M} {time.strftime('%Z') or ''}".strip(),
+            "sheet_url": sheet_url(config_json or repo / "config.json"), **stats}
     (out / "snapshot" / "info.json").write_text(json.dumps(info, indent=1), encoding="utf-8")
 
     shutil.copyfile(HERE / "app.py", out / "app.py")
