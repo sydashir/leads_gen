@@ -22,8 +22,8 @@ html{scroll-padding-top:0}
   box-shadow:0 50px 110px rgba(0,0,0,.65),0 0 0 1px rgba(255,255,255,.03),0 0 120px rgba(123,221,76,.1)}
 .board-head{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:18px 24px;border-bottom:1px solid var(--hair);font-size:14px;color:var(--mute)}
 .board-head b{font-weight:600;font-size:15px;color:var(--ink)}
-.board-sum{display:grid;justify-items:end}
-.board-sum>*{grid-area:1/1}
+.board-sum{display:grid;justify-items:end;align-items:center}
+.board-sum>*{grid-area:1/1;white-space:nowrap}
 .board-rows{list-style:none;margin:0;padding:0}
 .co-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 16px;padding:18px 24px;border-bottom:1px solid var(--hair)}
 .co-row:last-child{border-bottom:0}
@@ -82,7 +82,7 @@ html{scroll-padding-top:0}
 .steps-l li{display:grid;grid-template-columns:76px minmax(0,1fr);gap:4px 20px;align-items:baseline;padding:34px 0;border-top:1px solid var(--line)}
 .steps-l li:last-child{border-bottom:1px solid var(--line)}
 .steps-l .n{font-size:46px;line-height:1;font-weight:600;letter-spacing:-.04em;color:var(--lime);font-variant-numeric:tabular-nums}
-.steps-l h3{font-size:23px;font-weight:600;letter-spacing:-.02em;margin-bottom:10px}
+.steps-l h3{font-size:23px;font-weight:600;letter-spacing:-.02em;margin-bottom:10px;line-height:1.25;text-wrap:balance}
 .steps-l p{font-size:17px;line-height:1.6;color:var(--mute);max-width:36em}
 .paper{background:#fff;color:#2b3038}
 .paper h2,.paper h3{color:#000}
@@ -91,7 +91,7 @@ html{scroll-padding-top:0}
 .proof{padding:36px 0 40px;border-top:1px solid #d9dde3}
 .proof .ico{display:grid;place-items:center;width:48px;height:48px;border-radius:12px;background:var(--lime)}
 .proof .ico svg{width:24px;height:24px;color:#000}
-.proof h3{font-size:22px;font-weight:600;letter-spacing:-.02em;margin:22px 0 10px}
+.proof h3{font-size:22px;font-weight:600;letter-spacing:-.02em;margin:22px 0 10px;line-height:1.25;text-wrap:balance}
 .proof p{font-size:17px;line-height:1.6;color:#4a525d;max-width:30em}
 .callout{margin-top:24px;padding:26px 30px;border-radius:var(--r-lg);background:#000;color:#fff;display:flex;gap:18px;align-items:flex-start}
 .callout svg{width:22px;height:22px;flex:none;margin-top:2px;color:var(--lime)}
@@ -168,7 +168,7 @@ html{scroll-padding-top:0}
   .strip-in li{padding:26px 16px 26px 20px}
   .strip-in li:nth-child(odd){padding-left:0}
   .strip-in li:nth-child(even){padding-left:20px}
-  .src-num{flex:0 0 auto;text-align:left}
+  .src-num{flex:0 0 9.6em;text-align:right}
   .callout{padding:22px 20px}
 }
 @media (max-width:480px){
@@ -192,4 +192,10 @@ html{scroll-padding-top:0}
 @media (prefers-reduced-motion:reduce){
   .co-row,.chip.ok,.chip.held,.co-why,.board-sum .sum-done{animation:none}
   .chip.wait,.board-sum .sum-wait{display:none}
+}
+/* no one-word last lines in running text */
+.sec p,.care p,.callout p,.spec dd,.steps-l p,.proof p,.strip-in span,.src-gives,.board-note,.src-note,.l-foot p,.lede,.intro{text-wrap:pretty}
+/* the faded "Checking" chip keeps its width while it fades: on the narrowest phones show it as a dot so the names do not wrap */
+@media (max-width:345px){
+  .chip.wait{font-size:0;gap:0;padding:0 10px}
 }

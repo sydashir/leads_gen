@@ -267,7 +267,7 @@ dialog.preview::backdrop{background:rgba(0,0,0,.74);backdrop-filter:blur(3px)}
   .auth{display:flex;flex-direction:column}
   .auth-form{order:1;padding:40px 24px 48px}
   .auth-form .logo-m{display:inline-flex}
-  .auth-intro{order:2;padding:44px 24px 52px;gap:28px;border-right:0;border-top:1px solid var(--hair)}
+  .auth-intro{order:2;flex:1 0 auto;padding:44px 24px 52px;gap:28px;border-right:0;border-top:1px solid var(--hair)}
   .auth-intro .logo{display:none}
   .auth-intro p.tagline{font-size:2.2667rem}
   .auth-mark{right:-30%;width:120%;opacity:.1}
@@ -386,4 +386,8 @@ dialog.preview::backdrop{background:rgba(0,0,0,.74);backdrop-filter:blur(3px)}
   .bar i{background:Highlight;forced-color-adjust:none}
   .nav a[aria-current]::after{background:Highlight;forced-color-adjust:none}
   .pill,.chip{border:1px solid CanvasText}
+}
+@media (max-width:359px){
+  .top .logo-tag{display:none}
+  .actions .btn,.actions summary{padding-inline:8px;gap:6px;white-space:nowrap}
 }
