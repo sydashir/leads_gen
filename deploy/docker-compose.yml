@@ -1,0 +1,47 @@
+# One small server, automatic https:
+#   1. put the server's address in a free name (for example yourname.duckdns.org)
+#   2. create deploy/.env next to this file with these lines:
+#        DOMAIN=yourname.duckdns.org
+#        TZ=Asia/Karachi
+#        LOGIN_EMAIL=team@hybrid.agency
+#        LOGIN_PASSWORD=a-long-private-password
+#      The team login is not written on the page of a public server. SHOW_LOGIN=1 would write it there:
+#      only do that when just the team can reach the server.
+#   3. docker compose -f deploy/docker-compose.yml up -d --build
+services:
+  app:
+    build: ..
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ:-UTC}
+      ITLEADS_SECURE_COOKIES: "1"
+      ITLEADS_TRUSTED_PROXY: 172.28.0.2          # the proxy below: its forwarded client address is believed
+      ITLEADS_ALLOWED_HOSTS: ${DOMAIN:?set DOMAIN in deploy/.env}
+      ITLEADS_LOGIN_EMAIL: ${LOGIN_EMAIL:-team@hybrid.agency}
+      ITLEADS_LOGIN_PASSWORD: ${LOGIN_PASSWORD:?set LOGIN_PASSWORD in deploy/.env}
+      ITLEADS_SHOW_LOGIN: ${SHOW_LOGIN:-0}
+    volumes:
+      - data:/data                               # the lead list and settings survive updates
+    networks:
+      web:
+        ipv4_address: 172.28.0.3
+  proxy:
+    image: caddy:2
+    restart: unless-stopped
+    command: caddy reverse-proxy --from ${DOMAIN} --to app:8765
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - proxy:/data                              # the https certificate
+    networks:
+      web:
+        ipv4_address: 172.28.0.2
+volumes:
+  data:
+  proxy:
+networks:
+  web:
+    ipam:
+      config:
+        - subnet: 172.28.0.0/24
