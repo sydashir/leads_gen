@@ -1,0 +1,38 @@
+#!/bin/bash
+# Launcher: builds its own private Python environment the first time (and again whenever it no longer fits this
+# Mac or requirements.txt), then runs the tool.
+SRC="${BASH_SOURCE[0]:-$0}"
+while [ -L "$SRC" ]; do                                  # started through a link such as /usr/local/bin/it-leads
+  LINK_DIR="$(cd -P "$(dirname "$SRC")" && pwd)"
+  SRC="$(readlink "$SRC")"
+  case "$SRC" in /*) ;; *) SRC="$LINK_DIR/$SRC" ;; esac
+done
+HERE="$(cd -P "$(dirname "$SRC")" && pwd)"
+export ITLEADS_CWD="$PWD"                                # where the command was typed (for relative file names)
+cd "$HERE" || exit 1
+export ITLEADS_HOME="${ITLEADS_HOME:-$HERE}"             # data and settings; set it to keep them elsewhere
+
+# what the environment was built for: the requirements, this kind of Mac (Intel / Apple chip) and the Python version
+fingerprint() {
+  printf '%s|%s|%s' "$(shasum -a 256 requirements.txt | cut -d' ' -f1)" "$(uname -m)" \
+    "$("$1" -c 'import sys; print("%d.%d" % sys.version_info[:2])' 2>/dev/null)"
+}
+
+if [ ! -x ".venv/bin/python" ] || [ "$(cat .venv/.ready 2>/dev/null)" != "$(fingerprint .venv/bin/python)" ]; then
+  if ! command -v python3 >/dev/null 2>&1 || ! python3 -c 'import venv, ssl' >/dev/null 2>&1; then
+    echo "  This tool needs Python 3. In Terminal run:  xcode-select --install"
+    echo "  Wait for it to finish, then run ./it-leads again."
+    exit 1
+  fi
+  echo "  Preparing a private Python environment (about a minute)..."
+  rm -rf .venv
+  if ! python3 -m venv .venv \
+     || ! .venv/bin/python -m pip install --quiet --upgrade pip \
+     || ! .venv/bin/python -m pip install --quiet -r requirements.txt; then
+    rm -rf .venv
+    echo "  Could not download the components. Check your internet connection and run ./it-leads again."
+    exit 1
+  fi
+  fingerprint .venv/bin/python > .venv/.ready
+fi
+exec .venv/bin/python -m itleads "$@"
