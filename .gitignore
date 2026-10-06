@@ -1,0 +1,21 @@
+# private to the person running it
+config.json
+config.lock
+.config-*.tmp
+data/
+logs/
+leads-*.csv
+export-*
+
+# rebuilt by the launcher
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+
+deploy/vercel/dist/
+
+# server settings that hold the team password (see docs/guide.md)
+.env
+*.env
+deploy/.env

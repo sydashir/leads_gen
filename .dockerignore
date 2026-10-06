@@ -1,0 +1,16 @@
+.venv
+__pycache__
+*.pyc
+data
+logs
+config.json
+tests
+.git
+.DS_Store
+leads-*.csv
+
+deploy/vercel/dist/
+
+.env
+*.env
+deploy/.env
