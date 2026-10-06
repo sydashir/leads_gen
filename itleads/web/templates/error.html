@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} · Hybrid Leads{% endblock %}
+{% block body %}
+<div class="errpage">
+  <header>
+    <a class="logo" href="{{ url_for('views.dashboard') }}" aria-label="{{ 'Hybrid Leads dashboard' if me else 'Hybrid Leads start page' }}"><img src="{{ url_for('static', filename='hybrid-logo.png') }}" width="143" height="30" alt="Hybrid"><span class="logo-tag">Leads</span></a>
+  </header>
+  <main>
+    <div class="code mt">{{ code }}</div>
+    <h1>{{ title }}</h1>
+    <p>{{ message }}</p>
+    <a class="btn primary" href="{{ url_for('views.dashboard') }}">{% if me %}Back to the dashboard{% else %}Back to the start page{% endif %}</a>
+  </main>
+</div>
+{% endblock %}

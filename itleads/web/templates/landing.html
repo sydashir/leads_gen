@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+{% block title %}Hybrid Leads · New IT company filings, checked every day{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='landing.css', v=asset_v) }}">{% endblock %}
+{% block body %}
+<a class="skip" href="#main">Skip to the content</a>
+<header class="l-bar">
+  <div class="l-wrap l-bar-in">
+    <a class="logo" href="{{ url_for('views.dashboard') }}" aria-label="Hybrid Leads start page"><img src="{{ url_for('static', filename='hybrid-logo.png') }}" width="143" height="30" alt="Hybrid"><span class="logo-tag">Leads</span></a>
+    <nav class="l-nav" aria-label="Sections of this page">
+      <a href="#how">How it works</a>
+      <a href="#proof">Proof</a>
+      <a href="#data">What you get</a>
+      <a href="#sources">Registries</a>
+    </nav>
+    <a class="btn lime" href="{{ url_for('views.login') }}">Sign in</a>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero">
+    <div class="l-wrap hero-in">
+      <div class="hero-copy">
+        <h1>New IT company filings, checked every day.</h1>
+        <p class="lede">Hybrid Leads reads public business registries, matches each new company to its website, and lists the ones that also have an email and a phone, ready for outreach. A filing is any new registration, permit, or license.</p>
+        <div class="cta">
+          <a class="btn lime lg" href="{{ url_for('views.login') }}">Sign in</a>
+          <a class="btn ghost lg" href="#how">How it works
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></a>
+        </div>
+        <p class="fine">For the Hybrid team.</p>
+      </div>
+
+      <figure class="board" aria-label="Example: five made-up companies, four listed and one held back">
+        <div class="board-head">
+          <b>New filings</b>
+          <span class="board-sum">
+            <span class="sum-wait" aria-hidden="true">Checking 5 companies</span>
+            <span class="sum-done">4 listed, 1 held back</span>
+          </span>
+        </div>
+        <ul class="board-rows">
+          <li class="co-row">
+            <div><span class="co-name">Northwind Cloud LLC</span><span class="co-site">northwind.io</span></div>
+            <div class="co-state"><span class="chip wait" aria-hidden="true"><i></i>Checking</span><span class="chip ok">Listed</span></div>
+            <p class="co-why"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Full legal name on the site</p>
+          </li>
+          <li class="co-row">
+            <div><span class="co-name">Beacon Data Labs</span><span class="co-site">beacondata.co</span></div>
+            <div class="co-state"><span class="chip wait" aria-hidden="true"><i></i>Checking</span><span class="chip ok">Listed</span></div>
+            <p class="co-why"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Domain of the email filed with the registry</p>
+          </li>
+          <li class="co-row">
+            <div><span class="co-name">Quill Security LLC</span><span class="co-site">quillsecurity.com</span></div>
+            <div class="co-state"><span class="chip wait" aria-hidden="true"><i></i>Checking</span><span class="chip ok">Listed</span></div>
+            <p class="co-why"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Street address on the site matches the filing</p>
+          </li>
+          <li class="co-row">
+            <div><span class="co-name">Harbor Apps LLC</span><span class="co-site">harborapps.dev</span></div>
+            <div class="co-state"><span class="chip wait" aria-hidden="true"><i></i>Checking</span><span class="chip ok">Listed</span></div>
+            <p class="co-why"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Domain registered 9 days before the filing</p>
+          </li>
+          <li class="co-row held">
+            <div><span class="co-name">Lumen Web Studio</span><span class="co-site">no website found yet</span></div>
+            <div class="co-state"><span class="chip wait" aria-hidden="true"><i></i>Checking</span><span class="chip held">Held back</span></div>
+            <p class="co-why"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>Checked again in 3 days</p>
+          </li>
+        </ul>
+        <figcaption class="board-note">Made-up companies, to show how a list is built.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="strip" aria-label="At a glance">
+    <div class="l-wrap">
+      <ul class="strip-in">
+        <li><b>5</b><span>public business registries</span></li>
+        <li><b>Daily</b><span>automatic run, at a time you set</span></li>
+        <li><b>4</b><span>kinds of proof, checked for every website</span></li>
+        <li><b>3</b><span>ways to get the list: Google Sheet, Excel, CSV</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="sec" id="how">
+    <div class="l-wrap split">
+      <div class="sticky">
+        <h2>From a new filing to a list you can mail.</h2>
+        <p class="intro">After its first run, or once Google is connected, Hybrid Leads runs by itself once a day, at the time set in Settings. If the computer it runs on was asleep, it catches up soon after it wakes and the internet is back.</p>
+      </div>
+      <ol class="steps-l">
+        <li><span class="n">1</span><div><h3>Read the registries</h3><p>It collects new business filings from Texas, Connecticut, Seattle, San Francisco, and Los Angeles, and keeps the ones filed under an IT industry code.</p></div></li>
+        <li><span class="n">2</span><div><h3>Find the website</h3><p>It tries the domains a company is likely to use, loads each site, and keeps one only when it passes a check against the company's own filing.</p></div></li>
+        <li><span class="n">3</span><div><h3>Collect the contacts</h3><p>Email and phone come from the company's own site. The email can also come from the filing, when its domain matches the site. Press, legal, billing, and hiring mailboxes are skipped, and so are phone numbers labeled as a press, media, or complaints contact.</p></div></li>
+        <li><span class="n">4</span><div><h3>Deliver the list</h3><p>By default, companies with a matched website, an email, and a phone are listed when a run finishes, and added to the Google Sheet once it is connected. A company missing one of them is held back, checked again 3, 10, and 30 days after it first appears, and dropped if it still falls short.</p></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="sec paper" id="proof">
+    <div class="l-wrap">
+      <h2>Every website has to prove it belongs.</h2>
+      <p class="intro">A guess is only the start. A website must carry the company's name, on the page or in its domain, and pass at least one of these checks against the company's own filing. A weaker match is accepted in a few cases: a domain registered between ten months before and two months after the filing, or the company's exact name as the domain and in the page title, headings, or description. Both also need the site to name the filing's city. The Verified by column shows which check passed.</p>
+      <div class="proofs">
+        <article class="proof">
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></span>
+          <h3>The same phone or address</h3>
+          <p>The phone number or street address in the registry filing appears on the company's site.</p>
+        </article>
+        <article class="proof">
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h8.5L19 7.5V21H6z"/><path d="M9.5 12.5h6M9.5 16.5h6M9.5 8.5h2.5"/></svg></span>
+          <h3>The full legal name</h3>
+          <p>The company's full registered name appears on its site, usually in the footer. A name of one word also needs the filing's city on the same page. On the terms or contact page, any name also needs the filing's city or ZIP code.</p>
+        </article>
+        <article class="proof">
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.2"/><path d="m3.6 7.2 8.4 5.8 8.4-5.8"/></svg></span>
+          <h3>The email domain on the filing</h3>
+          <p>When the registry lists a business email, the site's domain is the same as that email's. Only Connecticut filings list one.</p>
+        </article>
+        <article class="proof">
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg></span>
+          <h3>A domain registered around the filing</h3>
+          <p>The domain was registered within three weeks of the filing, or a little wider when the domain is the company's exact name. That fits a company that has just started.</p>
+        </article>
+      </div>
+      <div class="callout">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.8v5.2M12 16.4v.2"/></svg>
+        <p><b>A site with no sign of IT work is dropped.</b> The registry's industry code is self-reported, so a site with readable text that shows almost nothing about software, IT services, or cloud work does not make the list. A site with almost no readable text is kept and marked Unverified. An admin can turn this off in Settings.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec graphite" id="data">
+    <div class="l-wrap split spec">
+      <div class="sticky">
+        <h2>Everything you need to reach out.</h2>
+        <p class="intro">One row per company. The downloads include every column described below. The Google Sheet and the preview show the first six; the Sheet keeps the rest in a collapsed group.</p>
+      </div>
+      <dl>
+        <div><dt>Company</dt><dd>Legal name and trade name. The Registered column gives the date of the filing.</dd></div>
+        <div><dt>Website</dt><dd>Matched to the filing. The Verified by column says how, in the downloads and in the Sheet's collapsed columns.</dd></div>
+        <div><dt>Email</dt><dd>An address from the company's own site, or from the filing when its domain matches the site. Press, legal, billing, and hiring mailboxes are skipped.</dd></div>
+        <div><dt>Phone</dt><dd>Taken from the company's site. A number labeled as a press, media, or complaints contact is skipped.</dd></div>
+        <div><dt>Address</dt><dd>The street address from the registry. For a person trading under a business name, only the city and state are shown.</dd></div>
+        <div><dt>Contact</dt><dd>A founder or officer, when the company's site or the Connecticut filing names one. The LinkedIn column links that person's profile when the site shows it, or else the company's LinkedIn page.</dd></div>
+        <div><dt>Fit</dt><dd>How sure the IT match is: Confirmed, Likely, or Unverified. A website 3 or more years older than the filing is flagged &quot;site since 20xx&quot;, because the company is probably established and has a new permit or location.</dd></div>
+        <div><dt>Delivery</dt><dd>A Google Sheet updated after each run, a preview inside Hybrid Leads, and Excel or CSV downloads.</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="sec" id="sources">
+    <div class="l-wrap">
+      <h2>Five public registries.</h2>
+      <p class="intro">Free government records, read at the source. A new permit or license can belong to an older company opening in that city, so each company shows its registered date.</p>
+      <ul class="src">
+        <li><div class="src-name"><b>Texas</b><span>Comptroller sales-tax permits</span></div><div class="src-gives">Industry code and address</div>
+          <div class="src-vol"><span class="src-bar"><i class="w100"></i></span><span class="src-num">about 450 a month</span></div></li>
+        <li><div class="src-name"><b>Connecticut</b><span>Business registry</span></div><div class="src-gives">Industry code, address, email, and officers</div>
+          <div class="src-vol"><span class="src-bar"><i class="w56"></i></span><span class="src-num">about 250 a month</span></div></li>
+        <li><div class="src-name"><b>San Francisco</b><span>Registered businesses</span></div><div class="src-gives">Industry code and address; about 4 in 10 are individuals</div>
+          <div class="src-vol"><span class="src-bar"><i class="w12"></i></span><span class="src-num">about 55 a month</span></div></li>
+        <li><div class="src-name"><b>Seattle</b><span>Business licenses</span></div><div class="src-gives">Industry code and address. Its phone number is only used to check the website.</div>
+          <div class="src-vol"><span class="src-bar"><i class="w4"></i></span><span class="src-num">about 20 a month</span></div></li>
+        <li><div class="src-name"><b>Los Angeles</b><span>Active businesses</span></div><div class="src-gives">Industry code and address</div>
+          <div class="src-vol"><span class="src-bar"><i class="w1"></i></span><span class="src-num">about 5 a month</span></div></li>
+      </ul>
+      <p class="src-note">New filings per month with an IT industry code. Rounded from September 2026 and the 45 days to 6 Oct 2026; the real numbers move with the registries.</p>
+    </div>
+  </section>
+
+  <div class="l-wrap">
+    <section class="care" aria-labelledby="care-h">
+      <h2 id="care-h">Public records, business contacts.</h2>
+      <p>Everything here comes from government registries, company websites, and public domain records. Before you email or call a company, check the rules: CAN-SPAM (your postal address in every email, a working unsubscribe link, opt-outs honored within 10 business days), state telemarketing laws, and the Do Not Call registry. This is a reminder, not legal advice.</p>
+    </section>
+  </div>
+
+  <section class="final">
+    <div class="l-wrap">
+      <h2>Open the list.</h2>
+      <p>Sign in with the team login to run Hybrid Leads, preview the sheet, and download the list.</p>
+      <a class="btn lime lg" href="{{ url_for('views.login') }}">Sign in</a>
+    </div>
+  </section>
+</main>
+
+<footer class="l-foot">
+  <div class="l-wrap l-foot-in">
+    <a class="logo" href="{{ url_for('views.dashboard') }}" aria-label="Hybrid Leads start page"><img src="{{ url_for('static', filename='hybrid-logo.png') }}" width="143" height="30" alt="Hybrid"><span class="logo-tag">Leads</span></a>
+    <p>Internal use only. Hybrid Leads is a tool of Hybrid Mediaworks.</p>
+    <a href="https://hybridmediaworks.com" target="_blank" rel="noopener noreferrer">hybridmediaworks.com<span class="sr"> (opens in a new tab)</span></a>
+  </div>
+</footer>
+{% endblock %}

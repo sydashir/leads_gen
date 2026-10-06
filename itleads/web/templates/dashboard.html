@@ -1,0 +1,60 @@
+{% extends "shell.html" %}
+{% block title %}Dashboard · Hybrid Leads{% endblock %}
+{% block main %}
+{% if read_only %}
+<div class="notice">
+  <span>This is a read-only copy{% if snapshot_at %}: the list as it was on {{ snapshot_at }}{% endif %}. It cannot run or refresh itself. The preview and the downloads work.</span>
+</div>
+{% elif not google.connected %}
+<div class="notice warn">
+  <span>{% if me.is_admin %}The Google Sheet is not connected yet. Connect it to get the sheet and its daily update. The preview and downloads already work.{% else %}The Google Sheet is not connected yet. Ask an admin to connect it. The preview and downloads already work.{% endif %}</span>
+  {% if me.is_admin %}<a class="btn small" href="{{ url_for('views.settings') }}">Connect Google</a>{% endif %}
+</div>
+{% endif %}
+<div id="run-note-live" role="status" aria-live="polite"><div class="notice" id="run-note" hidden><span></span></div></div>
+<div class="sr" id="run-announce" role="status" aria-live="polite"></div>
+<header class="page-head">
+  <div>
+    <h1>New IT company filings</h1>
+    <p class="sub" id="sub">{% if read_only %}{% if updated %}Updated {{ updated }}{% else %}Read-only copy{% endif %}{% elif running %}Running now{% else %}{% if updated %}Updated {{ updated }} &middot; {% endif %}{% if problem %}{{ problem }} &middot; {% endif %}Next run {{ next_run }}{% endif %}</p>
+  </div>
+  <div class="actions">
+    <button class="btn" id="open-preview" type="button">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M1.5 8s2.3-4.5 6.5-4.5S14.5 8 14.5 8 12.2 12.5 8 12.5 1.5 8 1.5 8z"/><circle cx="8" cy="8" r="2"/></svg>
+      Preview sheet</button>
+    <details class="menu" id="dl">
+      <summary class="btn" role="button">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M8 2.5v8M4.5 7.5L8 11l3.5-3.5M3 13.5h10"/></svg>
+        Download</summary>
+      <div class="pop">
+        <a href="{{ url_for('views.download', fmt='xlsx') }}">Excel<small>.xlsx, with links</small></a>
+        <a href="{{ url_for('views.download', fmt='csv') }}">CSV<small>plain text, opens anywhere</small></a>
+      </div>
+    </details>
+    <button class="btn primary" id="run" type="button" aria-disabled="false"{% if read_only %} disabled title="Runs are not available in this read-only copy"{% endif %}>
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4.5 3.2v9.6L12.5 8z"/></svg>
+      <span>Run now</span></button>
+  </div>
+</header>
+
+<section id="runpanel" class="runpanel" hidden>
+  <div class="run-top"><strong id="run-label">Starting</strong><span id="run-meta"></span></div>
+  <div class="bar indet" id="run-bar"><i></i></div>
+  <details><summary>Details</summary><pre id="run-log"></pre></details>
+</section>
+
+<div id="stats">{% include "_stats.html" %}</div>
+
+<dialog id="preview" class="preview" aria-labelledby="pv-title">
+  <div class="pv-head">
+    <div class="pv-title"><h2 id="pv-title">Sheet preview</h2><p id="pv-sub">Read-only view of the Google Sheet. It updates after every run.</p></div>
+    <div class="pv-tools">
+      <a class="btn small" id="pv-open" href="#" target="_blank" rel="noopener noreferrer" hidden>Open in Google Sheets<span class="sr"> (opens in a new tab)</span></a>
+      <a class="btn small pv-dl" href="{{ url_for('views.download', fmt='xlsx') }}">Download .xlsx</a>
+      <button class="btn small" id="pv-close" type="button" autofocus>Close</button>
+    </div>
+  </div>
+  <div class="pv-body" id="pv-body"><div class="pv-wait">Loading…</div></div>
+  <div class="sr" id="pv-live" role="status" aria-live="polite"></div>
+</dialog>
+{% endblock %}

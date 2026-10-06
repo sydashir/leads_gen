@@ -1,0 +1,62 @@
+{% macro n(v) %}{{ "{:,}".format(v) }}{% endmacro %}
+{% if not has_data %}
+<div class="empty">
+  {% if runs %}
+  <h2>Nothing is listed yet</h2>
+  <p>The last runs looked at new filings, but none has a matched website together with the contact details required in Settings.{% if stats.held %} {{ n(stats.held) }} {{ 'is' if stats.held == 1 else 'are' }} held back and checked again after 3, 10, and 30 days.{% endif %} {% if me and me.is_admin and not read_only %}To see more, relax what is required in Settings.{% else %}To see more, an admin can relax what is required in Settings.{% endif %}</p>
+  {% else %}
+  <h2>No companies yet</h2>
+  <p>Run it once. It reads the public registries, finds each company's website, email, and phone, and lists the ones that meet the rules in Settings. The first run covers the last 45 days and usually takes under 10 minutes; up to an hour is possible.</p>
+  {% if not read_only %}<button class="btn primary" type="button" data-run aria-disabled="false">Run now</button>{% endif %}
+  {% endif %}
+</div>
+{% else %}
+<div class="tiles">
+  <div class="tile"><div class="label">Latest additions</div><div class="n">{{ n(stats.latest) }}</div><div class="c">on {{ stats.latest_day|day }}</div></div>
+  <div class="tile"><div class="label">Last 7 days</div><div class="n">{{ n(stats.last7) }}</div><div class="c">including today</div></div>
+  <div class="tile"><div class="label">Total listed</div><div class="n">{{ n(stats.total) }}</div><div class="c">{% if read_only %}in this snapshot{% elif google.connected %}{{ n(stats.pushed) }} in the Google Sheet{% else %}Google Sheet not connected{% endif %}</div></div>
+  <div class="tile"><div class="label">Held back</div><div class="n">{{ n(stats.held) }}</div><div class="c">missing a website, email, or phone{% if stats.waiting.not_looked_up %} &middot; {{ n(stats.waiting.not_looked_up) }} not looked up yet{% endif %}</div></div>
+</div>
+<div class="cols">
+  <div class="card trend">
+    <h2>Added per day</h2>
+    {% set ns = namespace(m='') %}
+    <svg viewBox="0 0 480 240" role="img" aria-label="Companies added per day, last 12 days. {% for d in stats.by_day %}{{ d.d|day }}: {{ d.n }}{{ '. ' if not loop.last }}{% endfor %}">
+      {% for d in stats.by_day %}
+        {% set h = ((d.n / top) * 150)|round(1) if d.n else 1 %}
+        {% set x = 8 + loop.index0 * 40 %}
+        <rect class="{{ 'b' if d.n else 'z' }}" x="{{ x }}" y="{{ 190 - h }}" width="24" height="{{ h }}"><title>{{ d.d|day }}: {{ d.n }} added</title></rect>
+        {% if d.n %}<text class="v" x="{{ x + 12 }}" y="{{ 183 - h }}">{{ d.n }}</text>{% endif %}
+        <text x="{{ x + 12 }}" y="210">{{ d.d|short_day }}</text>
+        {% if (d.d|month) != ns.m %}{% set ns.m = d.d|month %}<text class="{{ 'm f' if loop.first else 'm' }}" x="{{ x + 12 }}" y="228">{{ ns.m }}</text>{% endif %}
+      {% endfor %}
+    </svg>
+  </div>
+  <div class="card"><h2>By registry</h2><div class="list">
+    {% for k, v in stats.by_source %}<div><span>{{ source_labels.get(k, k) }}</span><span>{{ n(v) }}</span></div>{% endfor %}
+  </div></div>
+  <div class="card"><h2>By state</h2><div class="list two">
+    {% for k, v in stats.by_state %}<div><span>{{ k }}</span><span>{{ n(v) }}</span></div>{% endfor %}
+  </div></div>
+</div>
+{% endif %}
+<div class="card mt">
+  <h2>Recent runs</h2>
+  {% if runs %}
+  <div class="scroll">
+  <table class="table">
+    <thead><tr><th scope="col">When</th><th scope="col">Result</th><th scope="col">New filings found</th><th scope="col" class="r">Status</th></tr></thead>
+    <tbody>
+    {% for r in runs %}
+      <tr>
+        <td class="nowrap">{{ r.when }}<div class="faint">{{ r.trigger }}</div></td>
+        <td>{{ r.line1 }}{% if r.line2 %}<div class="faint">{{ r.line2 }}</div>{% endif %}</td>
+        <td class="mute">{{ r.sources or '—' }}{% for e in r.errors %}<div class="faint">{{ e }}</div>{% endfor %}</td>
+        <td class="r nowrap"><span class="pill {{ 'ok' if r.status == 'ok' else 'warn' if r.status in ('partial', 'offline') else 'bad' }}">{{ r.status_label }}</span></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}<p class="mute">Nothing has run yet.</p>{% endif %}
+</div>

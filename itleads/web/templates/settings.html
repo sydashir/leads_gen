@@ -1,0 +1,68 @@
+{% extends "shell.html" %}
+{% block title %}Settings · Hybrid Leads{% endblock %}
+{% block main %}
+<header class="page-head"><div><h1>Settings</h1><p class="sub">The Google Sheet, the daily run, and what gets listed.</p></div></header>
+<div class="stack">
+
+  <section class="section" id="google">
+    <div class="row">
+      <h2>Google Sheet</h2>
+      <span class="pill {{ 'ok' if google.connected else 'warn' }}" id="g-pill">{{ 'Connected' if google.connected else 'Not connected' }}</span>
+    </div>
+    <p>{% if google.connected %}The sheet lives in your Google Drive and is updated after every run.{% else %}A one-time setup of about two minutes. The sheet is created in your own Google Drive.{% endif %}</p>
+
+    {% if google.connected %}<p class="msg mb16"><a href="{{ google.sheet_url }}" target="_blank" rel="noopener noreferrer">Open the sheet in Google Sheets<span class="sr"> (opens in a new tab)</span></a></p>{% endif %}
+    <label class="check"><input type="checkbox" id="g-link" {% if google.linked %}checked {% endif %}aria-labelledby="g-link-name" aria-describedby="g-link-help">
+      <span><span id="g-link-name">Let anyone with the link view the sheet</span><span class="faint" id="g-link-help">Needed to show the sheet inside Hybrid Leads. With it off, or on a work or school Google account that blocks link sharing, the preview is a plain table instead.</span></span></label>
+    <p class="msg" id="g-link-msg" role="status"></p>
+
+    <details {% if not google.connected %}open{% endif %}>
+      <summary class="mute disclose">{{ 'Reconnect or update the script' if google.connected else 'Connect Google' }}</summary>
+      <ol class="setup">
+        <li><span>Copy the script. <button class="btn small" type="button" id="copy-script">Copy script</button></span></li>
+        <li><span>Open Apps Script, delete the sample code, and paste the script. <a class="btn small" href="https://script.new" target="_blank" rel="noopener noreferrer">Open Apps Script<span class="sr"> (opens in a new tab)</span></a></span></li>
+        <li><span>Click <b>Deploy &gt; New deployment</b>, pick <b>Web app</b>, set <b>Execute as: Me</b> and <b>Who has access: Anyone</b>, then click <b>Deploy</b>.<span class="step-note">The address alone does nothing: every request also needs a secret only Hybrid Leads knows.</span></span></li>
+        <li><span>Google asks you to allow it. If it says <b>Google hasn't verified this app</b>, click <b>Advanced</b>, then <b>Go to &hellip; (unsafe)</b>, then <b>Allow</b>.<span class="step-note">The warning is normal for a script you own. The permission wording is broad (Google has nothing narrower for scripts that share a file), but the script only touches the sheet it creates, and you can read it below before you paste it.</span></span></li>
+        <li><span>Copy the <b>Web app URL</b> and paste it here.</span></li>
+      </ol>
+      <textarea class="codebox" id="script" readonly spellcheck="false" aria-label="The script to paste into Apps Script">{{ script }}</textarea>
+      <div class="field mt16"><label for="g-url">Web app URL</label>
+        <input id="g-url" type="url" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off"></div>
+      <button class="btn primary" type="button" id="g-connect">Connect and create the sheet</button>
+      <p class="msg" id="g-msg" role="status"></p>
+    </details>
+  </section>
+
+  <section class="section" id="schedule">
+    <h2>Daily run</h2>
+    <p>The list refreshes by itself once a day, using this computer's clock{% if not google.connected %}. The sheet is updated once Google is connected{% endif %}.</p>
+    <div class="field flush"><label for="s-time">Time of day</label>
+      <div class="row start">
+        <input id="s-time" type="time" value="{{ time }}">
+        <button class="btn" type="button" id="s-save">Save time</button>
+        <span class="mute" id="s-next">Next run {{ next_run }}</span>
+      </div>
+    </div>
+    <p class="msg" id="s-msg" role="status"></p>
+  </section>
+
+  <section class="section" id="rules">
+    <h2>What gets listed</h2>
+    <p>A company is listed once everything turned on here is known and its website is matched to the filing. Changes apply at once to companies already held back: the ones that now meet the rules are listed and sent to the sheet.</p>
+    <label class="check"><input type="checkbox" checked disabled aria-labelledby="r-web-name" aria-describedby="r-web-help"><span><span id="r-web-name">Website</span><span class="faint" id="r-web-help">Always required.</span></span></label>
+    <label class="check"><input type="checkbox" data-req="email" {% if 'email' in cfg.require %}checked{% endif %}><span>Email</span></label>
+    <label class="check"><input type="checkbox" data-req="phone" {% if 'phone' in cfg.require %}checked {% endif %}aria-labelledby="r-phone-name" aria-describedby="r-phone-help"><span><span id="r-phone-name">Phone</span><span class="faint" id="r-phone-help">Most small company sites do not publish one, so turning this off roughly triples the list.</span></span></label>
+    <label class="check"><input type="checkbox" id="r-either" {% if cfg.contact_either %}checked {% endif %}aria-labelledby="r-either-name" aria-describedby="r-either-help"><span><span id="r-either-name">One way to reach them is enough</span><span class="faint" id="r-either-help">An email or a phone is enough when both are turned on above. Most small sites show an email and a contact form but no phone, so this lists many more companies.</span></span></label>
+    <label class="check"><input type="checkbox" id="r-it" {% if cfg.require_it_signal %}checked {% endif %}aria-labelledby="r-it-name" aria-describedby="r-it-help"><span><span id="r-it-name">Drop companies whose website shows no sign of IT work</span><span class="faint" id="r-it-help">A site with readable text that shows nothing about software, IT services, or cloud work is dropped. A site that shows almost no text is kept.</span></span></label>
+    <label class="check"><input type="checkbox" id="r-old" {% if cfg.skip_established %}checked {% endif %}aria-labelledby="r-old-name" aria-describedby="r-old-help"><span><span id="r-old-name">Skip established companies</span><span class="faint" id="r-old-help">The website is 3 or more years older than the filing: usually an existing business with a new permit or location, not a new company. With this off, they are marked "site since &hellip;" in the Fit column.</span></span></label>
+    <div role="group" aria-labelledby="reg-label">
+      <div class="label sublabel" id="reg-label">Registries</div>
+      {% for key in all_sources %}
+      <label class="check"><input type="checkbox" data-src="{{ key }}" {% if cfg.sources.get(key) %}checked{% endif %}><span>{{ source_labels[key] }}</span></label>
+      {% endfor %}
+    </div>
+    <button class="btn" type="button" id="r-save">Save changes</button>
+    <p class="msg" id="r-msg" role="status"></p>
+  </section>
+</div>
+{% endblock %}

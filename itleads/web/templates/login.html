@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Sign in · Hybrid Leads{% endblock %}
+{% block body %}
+{# After a failed sign-in the page comes back with the email kept: the password field gets the focus, and both fields point at the message. #}
+{% set refocus = error and email %}
+<div class="auth">
+  <header class="auth-intro">
+    <a class="logo" href="{{ url_for('views.dashboard') }}" aria-label="Hybrid Leads start page"><img src="{{ url_for('static', filename='hybrid-logo.png') }}" width="143" height="30" alt="Hybrid"><span class="logo-tag">Leads</span></a>
+    <img class="auth-mark" src="{{ url_for('static', filename='mark.svg') }}" alt="" aria-hidden="true" width="740" height="560">
+    <div>
+      <p class="tagline">New IT company filings, checked every day.</p>
+      <p>Each company comes with a website matched to its filing, plus a business email and phone, ready for outreach.</p>
+    </div>
+  </header>
+  <main class="auth-form">
+    <div class="box">
+      <a class="logo logo-m" href="{{ url_for('views.dashboard') }}" aria-label="Hybrid Leads start page"><img src="{{ url_for('static', filename='hybrid-logo.png') }}" width="143" height="30" alt="Hybrid"><span class="logo-tag">Leads</span></a>
+      <h1>Sign in</h1>
+      <p class="sub">For the Hybrid team.</p>
+      {% if error %}<div class="errbox" id="login-error" role="alert">{{ error }}</div>{% endif %}
+      {% if hint %}
+      <div class="internal" id="internal">
+        <div class="internal-head"><b>Team login</b><button class="linkbtn" type="button" id="use-login">Fill in the form</button></div>
+        <dl>
+          <dt>Email</dt><dd id="hint-email">{{ hint.email }}</dd>
+          <dt>Password</dt><dd id="hint-password">{{ hint.password }}</dd>
+        </dl>
+      </div>
+      {% endif %}
+      <form method="post" action="{{ url_for('views.login_post') }}">
+        <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+        <input type="hidden" name="next" value="{{ next }}">
+        <div class="field"><label for="email">Email</label>
+          <input id="email" name="email" type="email" autocomplete="username" required {% if not refocus %}autofocus{% endif %}{% if error %} aria-invalid="true" aria-describedby="login-error"{% endif %} value="{{ email }}"></div>
+        <div class="field"><label for="password">Password</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" required {% if refocus %}autofocus{% endif %}{% if error %} aria-invalid="true" aria-describedby="login-error"{% endif %}></div>
+        <button class="btn primary" type="submit">Sign in</button>
+      </form>
+      <p class="alt"><a href="{{ url_for('views.dashboard') }}">Back to the start page</a></p>
+    </div>
+  </main>
+</div>
+{% endblock %}

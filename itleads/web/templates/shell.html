@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block body %}
+<a class="skip" href="#main">Skip to the content</a>
+<header class="top">
+  <div class="top-in">
+    <a class="logo" href="{{ url_for('views.dashboard') }}" aria-label="Hybrid Leads dashboard"><img src="{{ url_for('static', filename='hybrid-logo.png') }}" width="143" height="30" alt="Hybrid"><span class="logo-tag">Leads</span></a>
+    <nav class="nav" aria-label="Main">
+      <a href="{{ url_for('views.dashboard') }}" {% if request.endpoint == 'views.dashboard' %}aria-current="page"{% endif %}>Dashboard</a>
+      {% if me and me.is_admin and not read_only %}<a href="{{ url_for('views.settings') }}" {% if request.endpoint == 'views.settings' %}aria-current="page"{% endif %}>Settings</a>{% endif %}
+    </nav>
+    <div class="who">
+      <span class="who-email" title="{{ me.email }}">{{ me.email }}</span>
+      <form method="post" action="{{ url_for('views.logout') }}">
+        <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+        <button class="btn small" type="submit">Sign out</button>
+      </form>
+    </div>
+  </div>
+</header>
+<main class="wrap" id="main" tabindex="-1">
+  {% block main %}{% endblock %}
+</main>
+{% endblock %}
