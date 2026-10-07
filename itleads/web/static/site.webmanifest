@@ -1,7 +1,7 @@
 {
   "name": "Hybrid Leads",
   "short_name": "Leads",
-  "description": "New IT company filings from public registries, each with a matched website, an email and a phone. An internal tool of Hybrid Mediaworks.",
+  "description": "New IT company filings from public registries, each with a matched website and an email or a phone. An internal tool of Hybrid Mediaworks.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

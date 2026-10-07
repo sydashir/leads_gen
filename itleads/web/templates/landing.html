@@ -21,7 +21,7 @@
     <div class="l-wrap hero-in">
       <div class="hero-copy">
         <h1>New IT company filings, checked every day.</h1>
-        <p class="lede">Hybrid Leads reads public business registries, matches each new company to its website, and lists the ones that also have an email and a phone, ready for outreach. A filing is any new registration, permit, or license.</p>
+        <p class="lede">Hybrid Leads reads public business registries, matches each new company to its website, and lists the ones that also have an email or a phone number, ready for outreach. A filing is any new registration, permit, or license.</p>
         <div class="cta">
           <a class="btn lime lg" href="{{ url_for('views.login') }}">Sign in</a>
           <a class="btn ghost lg" href="#how">How it works
@@ -91,7 +91,7 @@
         <li><span class="n">1</span><div><h3>Read the registries</h3><p>It collects new business filings from Texas, Connecticut, Seattle, San Francisco, and Los Angeles, and keeps the ones filed under an IT industry code.</p></div></li>
         <li><span class="n">2</span><div><h3>Find the website</h3><p>It tries the domains a company is likely to use, loads each site, and keeps one only when it passes a check against the company's own filing.</p></div></li>
         <li><span class="n">3</span><div><h3>Collect the contacts</h3><p>Email and phone come from the company's own site. The email can also come from the filing, when its domain matches the site. Press, legal, billing, and hiring mailboxes are skipped, and so are phone numbers labeled as a press, media, or complaints contact.</p></div></li>
-        <li><span class="n">4</span><div><h3>Deliver the list</h3><p>By default, companies with a matched website, an email, and a phone are listed when a run finishes, and added to the Google Sheet once it is connected. A company missing one of them is held back, checked again 3, 10, and 30 days after it first appears, and dropped if it still falls short.</p></div></li>
+        <li><span class="n">4</span><div><h3>Deliver the list</h3><p>Companies with a matched website and the contact details Settings require (an email, a phone, or either one) are listed when a run finishes, and added to the Google Sheet once it is connected. A company missing something required is held back, checked again 3, 10, and 30 days after it first appears, and dropped if it still falls short.</p></div></li>
       </ol>
     </div>
   </section>

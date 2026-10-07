@@ -3,8 +3,8 @@
 The short version is in the [README](../README.md). This is the long one: Google Sheet setup, settings, servers, deploys, fixes.
 
 An internal tool for the Hybrid team. It checks public registries every day for new IT company filings (a filing is
-any new registration, permit, or license), matches each company to its website, and lists the ones with a website,
-email, and phone in a Google Sheet, ready for mailing. **Preview sheet** shows the real Google Sheet inside the app,
+any new registration, permit, or license), matches each company to its website, and lists the ones with a website and
+contact details (an email, a phone, or both, as set in Settings) in a Google Sheet, ready for mailing. **Preview sheet** shows the real Google Sheet inside the app,
 **Download** gives Excel or CSV, and a daily run refreshes everything by itself.
 
 Needs a Mac with Python 3 (if it is missing, `xcode-select --install` provides it) and an internet connection.
@@ -75,7 +75,7 @@ If you connect a different sheet later (for example a new script), everything al
 
 ## What gets listed
 
-A company is listed only when its **website, email, and phone** are known and the website is matched to its filing.
+A company is listed only when its website is matched to its filing and the contact details Settings require are known: by default an email and a phone, or with "One way to reach them is enough" either one.
 The site must carry the company's name, on the page or in its domain, and pass at least one check: the same phone or
 street address, its full legal name (a one-word name also needs the filing's city on the same page; on the terms or
 contact page, any name also needs the city or ZIP code), the email domain it gave the registry (Connecticut only), or a

@@ -1,7 +1,7 @@
 # Hybrid Leads
 
 Checks public business registries every day (Texas, Connecticut, Seattle, San Francisco, Los Angeles) for new IT
-company filings, matches each company to its website, and lists the ones with an email and a phone: in a dashboard,
+company filings, matches each company to its website, and lists the ones with an email or a phone: in a dashboard,
 a Google Sheet, and Excel/CSV downloads. An internal tool of Hybrid Mediaworks.
 
 ## Run it

@@ -131,7 +131,7 @@ class Wording(LandingCase):
         for pat in (r"licence", r"honou?r(?!ed)", r"honoured", r"organis", r"\btick", r"colour"):
             self.assertIsNone(re.search(pat, self.text, re.I), pat)
         for lst in ("Texas, Connecticut, Seattle, San Francisco, and Los Angeles", "Press, legal, billing, and hiring mailboxes",
-                    "an email, and a phone", "state telemarketing laws, and the Do Not Call registry"):
+                    "3, 10, and 30 days", "state telemarketing laws, and the Do Not Call registry"):
             self.assertIn(lst, self.text)
 
     def test_hero_sample_site_is_one_the_app_would_try(self):
