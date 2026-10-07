@@ -64,7 +64,8 @@ def google_info(cfg: dict) -> dict:
     if not open_url and config.read_only():                 # a published copy holds no Google settings: the address is handed in
         given = os.environ.get("ITLEADS_SHEET_URL", "")
         open_url = given if SHEET_URL.match(given) else ""
-    return {"connected": connected, "linked": bool(cfg.get("share_link", True)), "open_url": open_url,
+    outdated = connected and 0 < int(cfg.get("script_version") or 0) < sheet.EXPECTED_VERSION
+    return {"connected": connected, "linked": bool(cfg.get("share_link", True)), "open_url": open_url, "script_outdated": outdated,
             "sheet_url": base + "/edit" if connected else "", "embed_url": base + "/htmlview" if connected else ""}
 
 
@@ -289,6 +290,7 @@ def settings_google():
     bridge = sheet.Bridge(url, token, timeout=120, retries=1)    # one try: a person is waiting for the answer
     try:
         bridge.ping()
+        sheet.remember_version(bridge)
         info = bridge.init(util.tz_name(), [], link=link)
     except sheet.BridgeError as e:
         return _fail(str(e))

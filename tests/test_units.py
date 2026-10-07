@@ -1862,6 +1862,14 @@ class MessageWordingTests(unittest.TestCase):
             def json(self):
                 return _json.loads(self.text)
 
+        for good in (sheet.MIN_VERSION, sheet.EXPECTED_VERSION):                    # an older script still works, and says which one it is
+            bridge = sheet.Bridge("https://script.example/exec", "t", retries=1)
+            with mock.patch("itleads.sheet.requests.post", return_value=Reply({"ok": True, "version": good})):
+                bridge.ping()
+            self.assertEqual(bridge.version, good)
+        with mock.patch("itleads.sheet.requests.post", return_value=Reply({"ok": True, "version": sheet.MIN_VERSION - 1})):
+            with self.assertRaises(sheet.BridgeError):
+                sheet.Bridge("https://script.example/exec", "t", retries=1).ping()
         for body, expect in (({"ok": False, "error": "Wrong token"}, "different secret than Hybrid Leads"),
                              ({"ok": True, "version": sheet.EXPECTED_VERSION + 1}, f"Hybrid Leads needs {sheet.EXPECTED_VERSION}")):
             with mock.patch("itleads.sheet.requests.post", return_value=Reply(body)):

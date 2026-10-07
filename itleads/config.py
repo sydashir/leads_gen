@@ -19,6 +19,7 @@ DEFAULTS = {
     # Google side (filled in on the Settings page)
     "apps_script_url": "",
     "token": "",
+    "script_version": 0,           # the version of the Google script last seen (so Settings can say when a newer one exists)
     "sheet_id": "",
     "sheet_url": "",
     "share_link": True,            # "anyone with the link can view": needed for the embedded preview

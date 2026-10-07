@@ -5,7 +5,7 @@
  * and only restyles a tab when it creates that tab (or when asked to refresh).
  */
 var TOKEN = '__TOKEN__';
-var VERSION = 5;
+var VERSION = 6;
 var BOOK_TITLE = 'New IT Companies';
 
 var INK = '#1d1f1e', MUTE = '#6b6f6a', FAINT = '#9b9f99', LINE = '#e3e4df', HAIR = '#eeeeea';
@@ -53,6 +53,7 @@ function route_(req) {
   else if (req.action === 'share') out = share_(req);
   else if (req.action === 'upsert') out = upsert_(req);
   else if (req.action === 'log') out = log_(req);
+  else if (req.action === 'dashboard') out = dashboard_(req);
   else throw new Error('Unknown action: ' + req.action);
   out.version = VERSION;
   return out;
@@ -294,20 +295,24 @@ function formatDashboard_(sh) {
     .setFontFamily(FONT).setFontSize(10).setFontColor(INK).setBackground('#ffffff')
     .setVerticalAlignment('middle').setHorizontalAlignment('left');
   sh.setRowHeight(1, 24);
-  sh.getRange('B2:H2').merge().setValue('New IT companies').setFontSize(20).setFontWeight('bold');
+  sh.getRange('B2:H2').merge().setValue('New IT company filings').setFontSize(20).setFontWeight('bold');
   sh.setRowHeight(2, 42);
   sh.getRange('B3:M3').merge().setFontSize(10).setFontColor(MUTE);
   sh.setRowHeight(3, 22);
   sh.setRowHeight(4, 18);
 
-  var A = 'Companies!$' + letter_(colOf_('added')) + '$2:$' + letter_(colOf_('added'));
-  var NAME = 'Companies!$A$2:$A';
+  // Whole-column references on purpose: new rows are inserted at the top of Companies, and a range such as $O$2:$O
+  // would be pushed down by every insert until it pointed at empty rows (the tiles then read 0).
+  var A = 'Companies!$' + letter_(colOf_('added')) + ':$' + letter_(colOf_('added'));
+  var NAME = 'Companies!$A:$A';
+  var EMAIL = 'Companies!$' + letter_(colOf_('email')) + ':$' + letter_(colOf_('email'));
+  var PHONE = 'Companies!$' + letter_(colOf_('phone')) + ':$' + letter_(colOf_('phone'));
   var tiles = [
-    [2, 'LATEST RUN', '=COUNTIF(' + A + ',MAX(' + A + '))',
+    [2, 'LATEST ADDITIONS', '=COUNTIF(' + A + ',MAX(' + A + '))',
       '=IF(MAX(' + A + ')=0,"nothing yet","added on "&TEXT(MAX(' + A + '),"d mmm yyyy"))'],
     [5, 'LAST 7 DAYS', '=COUNTIFS(' + A + ',">="&(TODAY()-6))', 'including today'],
-    [8, 'IN THE SHEET', '=COUNTA(' + NAME + ')', 'all time'],
-    [11, 'HELD BACK', 0, 'missing a website, email or phone']
+    [8, 'TOTAL LISTED', '=MAX(0,COUNTA(' + NAME + ')-1)', 'in this sheet'],
+    [11, 'EMAIL AND PHONE', '=MAX(0,COUNTIFS(' + EMAIL + ',"<>",' + PHONE + ',"<>")-1)', 'can be reached both ways']
   ];
   tiles.forEach(function (t) {
     var col = t[0];
@@ -341,7 +346,7 @@ function formatDashboard_(sh) {
   sh.setRowHeight(13, 24);
 
   sh.getRange('B14').setValue('BY STATE').setFontSize(8).setFontWeight('bold').setFontColor(MUTE);
-  sh.getRange('G14').setValue('BY SOURCE').setFontSize(8).setFontWeight('bold').setFontColor(MUTE);
+  sh.getRange('G14').setValue('BY REGISTRY').setFontSize(8).setFontWeight('bold').setFontColor(MUTE);
   sh.getRange('B24').setValue('RECENT RUNS').setFontSize(8).setFontWeight('bold').setFontColor(MUTE);
   sh.setRowHeight(14, 24);
   sh.setRowHeight(24, 24);
@@ -379,19 +384,36 @@ function safe_(v) {
 function log_(req) {
   var ss = book_(false);
   if (!ss) throw new Error('There is no sheet yet. Run setup first.');
-  var tz = ss.getSpreadsheetTimeZone();
   var run = req.run || {};
   var runs = ss.getSheetByName('_runs');
   runs.appendRow([
     safe_(run.started), Number(run.seconds) || 0, Number(run.added) || 0, Number(run.held) || 0, Number(run.updated) || 0,
     safe_(run.sources), safe_(run.status || 'ok'), safe_(run.errors)
   ]);
+  paintDashboard_(ss, req);
+  return { ok: true };
+}
+
+// Rewrites the Dashboard tab from what is in Companies and _runs. Without a new run in the log: used to repair the tab.
+function dashboard_(req) {
+  var ss = book_(false);
+  if (!ss) throw new Error('There is no sheet yet. Run setup first.');
+  var dash = ss.getSheetByName('Dashboard');
+  if (dash) formatDashboard_(dash);
+  paintDashboard_(ss, req);
+  return { ok: true };
+}
+
+function paintDashboard_(ss, req) {
+  var tz = ss.getSpreadsheetTimeZone();
   var dash = ss.getSheetByName('Dashboard');
   var co = ss.getSheetByName('Companies');
+  var runs = ss.getSheetByName('_runs');
+  // A tab written by an older script has formulas whose ranges drifted down: rebuild it once.
+  if (String(dash.getRange('H6').getFormula() || '').indexOf('Companies!$A:$A') < 0) formatDashboard_(dash);
   var when = Utilities.formatDate(new Date(), tz, 'd MMM yyyy, HH:mm');
   dash.getRange('B3').setValue('Updated ' + when + '   |   ' + (req.sources_active || 0) +
-    ' sources   |   next run ' + (req.next_run || ''));
-  dash.getRange('K6').setValue(req.held || 0);
+    ' registries   |   next run ' + safe_(req.next_run || ''));
   writeTable_(dash, 15, 2, tally_(co, 'state', 8), 8);
   writeTable_(dash, 15, 7, tally_(co, 'source', 8), 8);
   var lastRun = runs.getLastRow();
@@ -400,12 +422,11 @@ function log_(req) {
   if (take > 0) {
     var data = runs.getRange(lastRun - take + 1, 1, take, 8).getValues().reverse();
     var rows = data.map(function (d) {
-      return [d[0], '', d[2] + ' new', d[3] + ' held', '', d[5], '', '', '', '', d[6]];
+      return [d[0], '', d[2] + ' added', '', '', d[5], '', '', '', '', d[6]];
     });
     var out = dash.getRange(25, 2, rows.length, 11);
     out.setValues(rows);
     out.setFontSize(9).setFontColor(INK)
       .setBorder(false, false, true, false, false, true, HAIR, SpreadsheetApp.BorderStyle.SOLID);
   }
-  return { ok: true };
 }

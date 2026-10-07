@@ -12,7 +12,8 @@ import requests
 
 from . import util
 
-EXPECTED_VERSION = 5
+EXPECTED_VERSION = 6        # the script this tool ships
+MIN_VERSION = 5             # the oldest script it still works with (version 6 repairs the Dashboard tab)
 SCRIPT_TEMPLATE = Path(__file__).resolve().parent / "appscript" / "Code.gs.tpl"
 
 SOURCE_LABEL = {"tx": "Texas", "ct": "Connecticut", "seattle": "Seattle", "sf": "San Francisco",
@@ -22,6 +23,14 @@ FIT_LABEL = {"strong": "Confirmed", "weak": "Likely", "unknown": "Unverified"}
 
 class BridgeError(RuntimeError):
     pass
+
+
+def remember_version(bridge) -> None:
+    """Keep the version of the Google script that answered, so Settings can say when a newer one is available."""
+    from . import config
+    v = int(getattr(bridge, "version", 0) or 0)
+    if v and config.load().get("script_version") != v:
+        config.update(lambda c: c.__setitem__("script_version", v))
 
 
 def new_token() -> str:
@@ -35,6 +44,7 @@ def render_script(token: str) -> str:
 class Bridge:
     def __init__(self, url: str, token: str, timeout: int = 300, retries: int = 3):
         self.url, self.token, self.timeout, self.retries = url.strip(), token, timeout, max(1, retries)
+        self.version = 0                                   # the script version seen in the last answer
 
     def call(self, action: str, *, expect: tuple = (), **payload) -> dict:
         """expect: keys the answer must carry. Google sometimes answers 200 with something else (seen once, on the very
@@ -72,7 +82,9 @@ class Bridge:
                                       "copy the script again, paste the new script and deploy a new version "
                                       "(Deploy > Manage deployments > pencil > New version). The URL stays the same.")
                 raise BridgeError(err)
-            if "version" in data and data["version"] != EXPECTED_VERSION:
+            if "version" in data:
+                self.version = data["version"]
+            if "version" in data and not (MIN_VERSION <= data["version"] <= EXPECTED_VERSION):
                 raise BridgeError(f"The pasted script is version {data['version']}; Hybrid Leads needs {EXPECTED_VERSION}. "
                                   "Open Settings, copy the script again, paste it into Apps Script, then Deploy > Manage "
                                   "deployments > pencil > Version: New version (not New deployment: that changes the URL).")
@@ -86,6 +98,10 @@ class Bridge:
 
     def ping(self) -> dict:
         return self.call("ping")
+
+    def dashboard(self, sources_active: int = 0, next_run: str = "") -> dict:
+        """Rebuild the sheet's Dashboard tab (needs script version 6)."""
+        return self.call("dashboard", sources_active=sources_active, next_run=next_run)
 
     def init(self, tz: str, share: list, refresh: bool = False, link=None) -> dict:
         return self.call("init", tz=tz, share=share, refresh=refresh, link=link)

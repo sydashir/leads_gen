@@ -74,7 +74,7 @@ class BridgeTest(unittest.TestCase):
         self.assertTrue(co["group"] and co["group"]["collapsed"])      # detail columns tucked away
         self.assertTrue(self.sheet_named("_runs")["hidden"])
         dash = self.sheet_named("Dashboard")
-        self.assertEqual(dash["rows"][1][1]["v"], "New IT companies")
+        self.assertEqual(dash["rows"][1][1]["v"], "New IT company filings")
         self.assertTrue(any(str(c["v"]).startswith("=COUNTIF") for r in dash["rows"] for c in r))
 
         # ping now sees the book
@@ -118,7 +118,8 @@ class BridgeTest(unittest.TestCase):
                          "sources": "TX 1", "status": "ok", "errors": ""}, 9, 5, "tomorrow 07:00")
         dash = self.sheet_named("Dashboard")
         self.assertIn("next run tomorrow 07:00", dash["rows"][2][1]["v"])
-        self.assertEqual(dash["rows"][5][10]["v"], 9)                                         # HELD BACK tile
+        self.assertTrue(str(dash["rows"][5][10]["v"]).startswith("=MAX(0,COUNTIFS("))             # the fourth tile counts companies with email and phone
+        self.assertNotIn(9, [c["v"] for c in dash["rows"][5]])                               # the held-back count is not shown any more
         self.assertTrue(any(c["v"] == "Texas" for row in dash["rows"] for c in row))          # by-source table
 
     def colx(self, header):
@@ -253,6 +254,30 @@ class BridgeTest(unittest.TestCase):
             with self.assertRaises(sheet.BridgeError) as cm:                           # a clear error, not a KeyError
                 bridge.upsert([], "2026-10-06")
         self.assertIn("not with the result", str(cm.exception))
+
+    def test_9_the_dashboard_formulas_cannot_drift_and_there_is_no_held_back_tile(self):
+        """New rows go in at the top of Companies; a range such as $O$2:$O would be pushed down by every insert until the
+        tiles read 0 (seen on the owner's sheet). Every reference to the list must be a whole column."""
+        self.bridge.init("Asia/Karachi", [])
+        self.bridge.upsert([sheet.sheet_row(lead(40, "India LLC", "india.io", "i@india.io", "2142100140", "2026-10-11"))], "2026-10-11")
+        self.bridge.log({"started": "11 Oct 2026, 17:00", "seconds": 5, "added": 1, "held": 9, "updated": 0, "sources": "TX 1",
+                         "status": "ok", "errors": ""}, 9, 5, "tomorrow 17:00")
+        for refresh in (False, True):
+            if refresh:
+                self.assertTrue(self.bridge.dashboard(5, "tomorrow 17:00")["ok"])          # the repair action rebuilds the same thing
+            dash = self.sheet_named("Dashboard")
+            cells = [c["v"] for row in dash["rows"] for c in row if isinstance(c.get("v"), str)]
+            formulas = [v for v in cells if v.startswith("=")]
+            self.assertGreaterEqual(len(formulas), 20)
+            for f in formulas:
+                self.assertNotRegex(f, r"Companies!\$?[A-Z]+\$?\d", f)                      # whole columns only
+            text = " ".join(cells).upper()
+            self.assertNotIn("HELD", text)
+            for label in ("LATEST ADDITIONS", "LAST 7 DAYS", "TOTAL LISTED", "EMAIL AND PHONE", "BY REGISTRY"):
+                self.assertIn(label, text)
+            self.assertIn("registries", dash["rows"][2][1]["v"])
+        recent = [c["v"] for c in dash["rows"][24] if c.get("v") not in ("", None)]
+        self.assertIn("1 added", recent)
 
     def test_2_wrong_token(self):
         bad = sheet.Bridge(self.base + "/macros/s/FAKE/exec", "nope", timeout=30)

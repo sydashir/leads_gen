@@ -11,6 +11,11 @@
     </div>
     <p>{% if google.connected %}The sheet lives in your Google Drive and is updated after every run.{% else %}A one-time setup of about two minutes. The sheet is created in your own Google Drive.{% endif %}</p>
 
+    {% if google.script_outdated %}
+    <div class="notice warn" id="script-update">
+      <span>A newer sheet script is available. It repairs the Dashboard tab of the sheet, where the numbers at the top read 0. Open "Reconnect or update the script" below, copy the script, paste it over the old one in Apps Script, then click Deploy, Manage deployments, the pencil, New version, Deploy. The web app address stays the same.</span>
+    </div>
+    {% endif %}
     {% if google.connected %}<p class="msg mb16"><a href="{{ google.sheet_url }}" target="_blank" rel="noopener noreferrer">Open the sheet in Google Sheets<span class="sr"> (opens in a new tab)</span></a></p>{% endif %}
     <label class="check"><input type="checkbox" id="g-link" {% if google.linked %}checked {% endif %}aria-labelledby="g-link-name" aria-describedby="g-link-help">
       <span><span id="g-link-name">Let anyone with the link view the sheet</span><span class="faint" id="g-link-help">Needed to show the sheet inside Hybrid Leads. With it off, or on a work or school Google account that blocks link sharing, the preview is a plain table instead.</span></span></label>

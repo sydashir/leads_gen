@@ -110,6 +110,7 @@ class RangeImpl {
     return this._self;
   }
   setValue(v) { this._each(c => { c.value = v; c.rich = null; }); return this._self; }
+  getFormula() { const c = this._s._peek(this._r, this._c); return c && typeof c.value === 'string' && c.value.startsWith('=') ? c.value : ''; }
   setFormula(f) { if (!String(f).startsWith('=')) throw new Error('formula must start with ='); this._each(c => { c.value = f; }); return this._self; }
   setRichTextValues(v) {
     if (v.length !== this._nr || v[0].length !== this._nc) throw new Error(`setRichTextValues: ${v.length}x${v[0] && v[0].length} vs ${this._nr}x${this._nc}`);

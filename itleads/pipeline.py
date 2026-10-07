@@ -287,6 +287,7 @@ def send_waiting(cfg: dict, *, log=None, progress=None, trigger: str = "connect"
         bridge = sheet.Bridge(cfg["apps_script_url"], cfg["token"])
         try:
             bridge.ping()
+            sheet.remember_version(bridge)
             progress("send", 0, 0, "")
             rq = requalify_pass(store, cfg, date.today(), log)  # waiting companies are judged by today's checks before they go
             summary["added"] = rq["released"]                   # those it releases are sent just below
@@ -339,6 +340,7 @@ def _run(cfg: dict, store: Store, *, dry_run: bool = False, since: date | None =
     if bridge is not None:
         try:
             bridge.ping()
+            sheet.remember_version(bridge)
         except sheet.BridgeError as e:
             sheet_ok = False
             summary["errors"].append(f"sheet: {e}")

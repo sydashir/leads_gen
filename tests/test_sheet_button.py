@@ -65,6 +65,32 @@ class OpenSheetButtonTests(WebCase):
             appdb.delete_user(u["id"])
 
 
+class ScriptUpdateNoticeTests(WebCase):
+    def settings(self):
+        return self.user_client().get("/settings").get_data(as_text=True)
+
+    def test_settings_says_when_the_sheet_script_is_older_than_the_one_hybrid_leads_ships(self):
+        from itleads import sheet
+        connect_google()
+        config.update(lambda c: c.__setitem__("script_version", sheet.EXPECTED_VERSION - 1))
+        self.assertIn('id="script-update"', self.settings())
+
+    def test_no_notice_when_the_script_is_current_or_its_version_is_not_known_yet(self):
+        from itleads import sheet
+        connect_google()
+        c = self.user_client()
+        self.assertNotIn('id="script-update"', c.get("/settings").get_data(as_text=True))      # 0 = not seen yet
+        config.update(lambda cfg: cfg.__setitem__("script_version", sheet.EXPECTED_VERSION))
+        self.assertNotIn('id="script-update"', c.get("/settings").get_data(as_text=True))
+
+    def test_the_version_is_remembered_from_the_script_answer(self):
+        from itleads import sheet
+        b = sheet.Bridge("https://script.google.com/macros/s/X/exec", "t")
+        b.version = sheet.MIN_VERSION
+        sheet.remember_version(b)
+        self.assertEqual(config.load()["script_version"], sheet.MIN_VERSION)
+
+
 class VercelSheetAddressTests(unittest.TestCase):
     def test_the_bundle_carries_the_sheet_address_and_nothing_else_from_the_settings(self):
         import json
